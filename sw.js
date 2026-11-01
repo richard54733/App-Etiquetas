@@ -1,5 +1,5 @@
 /* Service worker: guarda o app e as etiquetas para funcionar sem internet. */
-const VERSION = 'v1.0.2';
+const VERSION = 'v1.0.3';
 const SHELL = `shell-${VERSION}`;
 const DATA = 'etiquetas-pdf-v1';
 const SHELL_FILES = [

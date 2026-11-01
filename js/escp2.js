@@ -72,6 +72,13 @@ function dot(v, x, y) {
   return Math.min(3, level + (frac > t ? 1 : 0));
 }
 
+/** Deixa bordas de texto e código de barras nítidas: tons perto do branco/preto viram branco/preto puro */
+function crisp(k) {
+  if (k <= 60) return 0;
+  if (k >= 190) return 255;
+  return Math.round((k - 60) * 255 / 130);
+}
+
 /**
  * Trabalho ESC/P2 para L210. A página é entregue linha a linha (RGB, 360 dpi,
  * largura = dataW), e os dados são agrupados em faixas para as passadas.
@@ -81,7 +88,9 @@ export class Escp2Job {
     this.sink = sink;
     this.paper = L210_PAPERS[o.paper || 'A4'] || L210_PAPERS.A4;
     this.color = !!o.color;
-    this.bidir = o.bidirectional ?? true;
+    // unidirecional: a cabeça só imprime indo para um lado. Na L210 o modo de ida-e-volta
+    // desalinha as passadas e deixa barras de código de barras serrilhadas/dobradas.
+    this.bidir = o.bidirectional ?? false;
     this.nozzles = this.color ? 60 : 180;      // bicos por cor
     this.band = this.nozzles * 2;              // linhas cobertas por 2 passadas
     this.channels = this.color ? [0, 2, 1, 4] : [0]; // K, C, M, Y (códigos ESC/P2)
@@ -152,7 +161,7 @@ export class Escp2Job {
       if (R === 255 && G === 255 && B === 255) continue;
       const sh = 6 - ((x & 3) << 1), bi = off + (x >> 2);
       if (!this.color) {
-        const k = 255 - ((R * 77 + G * 151 + B * 28) >> 8);
+        const k = crisp(255 - ((R * 77 + G * 151 + B * 28) >> 8));
         const d = dot(k, x, y);
         if (d) { this.planes[0][bi] |= d << sh; this.rowInk[0][y] = 1; }
       } else {
@@ -160,7 +169,7 @@ export class Escp2Job {
         // preto só onde a cor é neutra (cinza/preto); cores vivas ficam só com C, M e Y
         const mn = Math.min(c, m, yy), mx = Math.max(c, m, yy);
         const neutral = 1 - (mx - mn) / 255;
-        const k = Math.round(mn * neutral * neutral);
+        const k = crisp(Math.round(mn * neutral * neutral));
         c -= k; m -= k; yy -= k;
         const vals = [k, c, m, yy];
         for (let ch = 0; ch < 4; ch++) {
