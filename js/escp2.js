@@ -187,24 +187,22 @@ export class Escp2Job {
   }
 
   /**
-   * Uma passada com a cabeça na linha P. O bico n de cada tinta cai na linha lógica P + 2n;
-   * para a tinta com deslocamento h isso é a linha da imagem P + 2n − h, porque na L210 os bicos
-   * magenta e amarelo ficam 120 e 240 linhas acima dos bicos preto/ciano (headOffset do Gutenprint).
-   * Cada linha lógica só é impressa pela passada "dona" dela (owner), então nada sai duplicado.
+   * Uma passada com a cabeça na linha P. O bico n de cada tinta cai na linha P + 2n − deslocamento,
+   * porque na L210 os bicos magenta e amarelo ficam 120 e 240 linhas acima dos bicos preto/ciano
+   * (headOffset do Gutenprint, tintas "c82"). Sem isso, rosa e amarelo saem deslocados para cima.
    */
-  emitPass(k, P, owner) {
+  emitPass(P) {
     const sends = [];
     for (let ch = 0; ch < this.channels.length; ch++) {
       const h = this.offsets[ch];
       const plane = this.planes[ch], ink = this.rowInk[ch];
-      const rowOf = (n) => { const L = P + 2 * n; const r = L - h; return owner[L] === k && r >= 0 && r < this.height ? r : -1; };
       let has = false;
-      for (let n = 0; n < this.nozzles; n++) { const r = rowOf(n); if (r >= 0 && ink[r]) { has = true; break; } }
+      for (let n = 0; n < this.nozzles; n++) { const r = P + 2 * n - h; if (r >= 0 && r < this.height && ink[r]) { has = true; break; } }
       if (!has) continue;
       let o = 0;
       for (let n = 0; n < this.nozzles; n++) {
-        const r = rowOf(n);
-        const src = r >= 0 ? plane.subarray(r * this.bytesPerRow, (r + 1) * this.bytesPerRow) : this.blank;
+        const r = P + 2 * n - h;
+        const src = r >= 0 && r < this.height ? plane.subarray(r * this.bytesPerRow, (r + 1) * this.bytesPerRow) : this.blank;
         o = packBits(src, this.comp, o);
       }
       sends.push([this.channels[ch], this.comp.slice(0, o)]);
@@ -218,21 +216,12 @@ export class Escp2Job {
     }
   }
 
-  /**
-   * Entrelaçamento igual ao do Gutenprint: passadas em 0, 1 e depois avançando (bicos − 1) linhas
-   * (59 em cor, 179 em preto). Passadas seguidas alternam linhas pares e ímpares, deslocadas meia
-   * faixa, então as emendas entre faixas não caem todas na mesma linha. Isso tira as listras
-   * claras que apareciam atravessando as barras do código de barras.
-   */
   endPage() {
     const maxOff = Math.max(...this.offsets);
-    const lastL = this.height + maxOff;
-    const adv = this.nozzles - 1;
-    const passes = [0, 1];
-    while (passes[passes.length - 1] <= lastL) passes.push(passes[passes.length - 1] + adv);
-    const owner = new Int32Array(lastL + 2 * this.nozzles + 2).fill(-1);
-    passes.forEach((P, k) => { for (let n = 0; n < this.nozzles; n++) { const L = P + 2 * n; if (L < owner.length && owner[L] < 0) owner[L] = k; } });
-    passes.forEach((P, k) => this.emitPass(k, P, owner));
+    for (let S = 0; S < this.height + maxOff; S += this.band) {
+      this.emitPass(S);
+      this.emitPass(S + 1);
+    }
     this.planes = this.rowInk = null;
     this.push([0x0C]);
   }
