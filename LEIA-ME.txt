@@ -1,0 +1,13 @@
+APP ETIQUETAS — pasta do site
+
+Esta pasta inteira é o aplicativo. Para colocar no ar (grátis):
+1) Abra https://app.netlify.com/drop no navegador do computador.
+2) Entre com sua conta do GitHub.
+3) Arraste ESTA PASTA inteira para a área indicada.
+4) Copie o link que aparecer (https://algo.netlify.app). Em "Site configuration" > "Change site name"
+   você pode trocar para algo como https://etiquetas-richard.netlify.app
+5) Abra esse link no Chrome do celular Android > menu (3 pontinhos) > "Adicionar à tela inicial".
+
+Para atualizar as etiquetas: coloque os PDFs novos em catalog/pdf e rode o script gerar-catalogo
+(ou use "Adicionar meus PDFs" dentro do app), depois arraste a pasta de novo em "Deploys".
+Detalhes completos no PDF "Manual App Etiquetas.pdf".

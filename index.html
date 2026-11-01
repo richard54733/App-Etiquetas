@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Etiquetas</title>
+<meta name="description" content="Escolha as etiquetas, diga quantas folhas e imprima direto pelo cabo USB.">
+<meta name="theme-color" content="#dff1ec">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preload" href="fonts/atkinson-hyperlegible-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+<script src="vendor/pdf-lib.min.js" defer></script>
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 14h10v6H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3.5c-4.7 0-8.5 3.6-8.5 8.1 0 1.6.5 3.1 1.3 4.4L4 20.5l4.7-1.2c1 .5 2.1.8 3.3.8 4.7 0 8.5-3.6 8.5-8.1S16.7 3.5 12 3.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9.2 8.6c.3-.5.6-.5.9-.5h.5c.2 0 .4.1.5.4l.7 1.6c.1.3 0 .5-.1.7l-.5.6c.6 1.1 1.5 2 2.7 2.6l.6-.6c.2-.2.4-.2.7-.1l1.5.7c.3.1.4.3.4.6v.4c0 .4-.2.8-.6 1-1 .6-2.5.4-4.2-.6-1.5-.9-2.7-2.3-3.3-3.6-.5-1.2-.5-2.3.2-3.2Z" fill="currentColor"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v4.5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v5h5M12 11v6M9 14h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-install" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v7m0 0-3-3m3 3 3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 4l3 3-3 3M20 7H9a5 5 0 0 0-5 5M7 20l-3-3 3-3M4 17h11a5 5 0 0 0 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 7.5h3M13 7.5h3M8 11.5h3M13 11.5h3M8 15.5h3M13 15.5h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="backdrop" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+
+<header class="topbar glass">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="4" width="26" height="32" rx="5" fill="#0b7a63"/><rect x="11" y="9" width="8" height="5" rx="1.5" fill="#fff"/><rect x="21" y="9" width="8" height="5" rx="1.5" fill="#fff"/><rect x="11" y="17" width="8" height="5" rx="1.5" fill="#fff"/><rect x="21" y="17" width="8" height="5" rx="1.5" fill="#ffc93c"/><rect x="11" y="25" width="8" height="5" rx="1.5" fill="#fff"/><rect x="21" y="25" width="8" height="5" rx="1.5" fill="#fff"/></svg>
+    <h1>Etiquetas</h1>
+  </div>
+  <button id="printerPill" class="pill" type="button" data-state="off">
+    <span class="dot" aria-hidden="true"></span><span class="pill-text">Impressora</span>
+  </button>
+  <button id="menuBtn" class="icon-btn" type="button" aria-label="Menu"><svg><use href="#i-menu"/></svg></button>
+</header>
+
+<main id="main">
+  <section id="again" class="again" hidden>
+    <div class="again-text">
+      <strong>Repetir a última impressão</strong>
+      <span id="againSummary"></span>
+    </div>
+    <button id="againBtn" class="btn soft" type="button"><svg><use href="#i-repeat"/></svg>Repetir</button>
+  </section>
+
+  <label class="search">
+    <svg aria-hidden="true"><use href="#i-search"/></svg>
+    <input id="q" type="search" placeholder="Procurar etiqueta" autocomplete="off" enterkeyhint="search" aria-label="Procurar etiqueta">
+    <button id="qClear" class="search-clear" type="button" aria-label="Limpar busca" hidden><svg><use href="#i-close"/></svg></button>
+  </label>
+
+  <div id="grid" class="grid" aria-live="polite"></div>
+  <div id="empty" class="empty" hidden>
+    <p>Nenhuma etiqueta com esse nome.</p>
+    <button class="btn soft" type="button" data-action="add-pdf"><svg><use href="#i-file-plus"/></svg>Adicionar um PDF</button>
+  </div>
+</main>
+
+<footer id="cartBar" class="cartbar glass" data-empty="true">
+  <button id="openCart" class="cart-summary" type="button" aria-label="Ver a lista de impressão">
+    <span class="cart-icon"><svg><use href="#i-sheet"/></svg><b id="cartCount">0</b></span>
+    <span class="cart-label"><span id="cartLabel">Lista vazia</span><small id="cartHint">Toque em + nas etiquetas</small></span>
+  </button>
+  <button id="printBtn" class="btn primary big" type="button" disabled><svg><use href="#i-printer"/></svg>Imprimir</button>
+</footer>
+
+<!-- Lista de impressão -->
+<dialog id="dlgCart" class="sheet" aria-labelledby="cartTitle">
+  <div class="sheet-head">
+    <h2 id="cartTitle">Sua lista</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+  </div>
+  <ul id="cartList" class="cart-list"></ul>
+  <p class="cart-total" id="cartTotal"></p>
+  <div class="sheet-actions">
+    <button class="btn primary big" type="button" data-action="print"><svg><use href="#i-printer"/></svg><span>Imprimir</span></button>
+    <div class="row2">
+      <button class="btn whatsapp" type="button" data-action="share"><svg><use href="#i-share"/></svg>Enviar no WhatsApp</button>
+      <button class="btn soft" type="button" data-action="download"><svg><use href="#i-download"/></svg>Salvar PDF</button>
+    </div>
+    <button class="btn ghost danger" type="button" data-action="clear"><svg><use href="#i-trash"/></svg>Esvaziar lista</button>
+  </div>
+</dialog>
+
+<!-- Menu -->
+<dialog id="dlgMenu" class="sheet" aria-labelledby="menuTitle">
+  <div class="sheet-head">
+    <h2 id="menuTitle">Menu</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+  </div>
+  <nav class="menu">
+    <button type="button" data-action="printer"><svg><use href="#i-printer"/></svg><span>Impressora<small id="menuPrinterState">Não conectada</small></span></button>
+    <button type="button" data-action="history"><svg><use href="#i-clock"/></svg><span>Impressões anteriores<small>Repita uma lista em um toque</small></span></button>
+    <button type="button" data-action="add-pdf"><svg><use href="#i-file-plus"/></svg><span>Adicionar meus PDFs<small>Etiquetas que não estão na lista</small></span></button>
+    <button type="button" data-action="install" id="menuInstall" hidden><svg><use href="#i-install"/></svg><span>Colocar na tela inicial<small>Abre como um aplicativo</small></span></button>
+    <button type="button" data-action="tour"><svg><use href="#i-help"/></svg><span>Como usar<small>Mostra o passo a passo de novo</small></span></button>
+  </nav>
+  <p class="offline-note" id="offlineNote">Preparando o uso sem internet…</p>
+</dialog>
+
+<!-- Impressora -->
+<dialog id="dlgPrinter" class="sheet" aria-labelledby="printerTitle">
+  <div class="sheet-head">
+    <h2 id="printerTitle">Impressora</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+  </div>
+  <div id="printerStatus" class="status-card"></div>
+  <div class="field">
+    <span class="field-label">Cor</span>
+    <div class="seg" role="radiogroup" data-setting="color">
+      <button type="button" role="radio" data-value="true">Colorida</button>
+      <button type="button" role="radio" data-value="false">Só preto</button>
+    </div>
+  </div>
+  <div class="field">
+    <span class="field-label">Papel</span>
+    <div class="seg" role="radiogroup" data-setting="paper">
+      <button type="button" role="radio" data-value="A4">A4</button>
+      <button type="button" role="radio" data-value="LETTER">Carta</button>
+    </div>
+  </div>
+  <div class="field">
+    <span class="field-label">Ajuste de posição <small>use se a impressão sair fora da etiqueta</small></span>
+    <div class="nudges">
+      <div class="nudge"><span>Para a direita</span><div class="stepper sm" data-offset="offsetX"><button type="button" data-d="-0.5" aria-label="Menos"><svg><use href="#i-minus"/></svg></button><output>0 mm</output><button type="button" data-d="0.5" aria-label="Mais"><svg><use href="#i-plus"/></svg></button></div></div>
+      <div class="nudge"><span>Para baixo</span><div class="stepper sm" data-offset="offsetY"><button type="button" data-d="-0.5" aria-label="Menos"><svg><use href="#i-minus"/></svg></button><output>0 mm</output><button type="button" data-d="0.5" aria-label="Mais"><svg><use href="#i-plus"/></svg></button></div></div>
+    </div>
+  </div>
+  <button class="btn soft wide" type="button" data-action="testpage"><svg><use href="#i-sheet"/></svg>Imprimir página de teste</button>
+  <details class="tech">
+    <summary>Detalhes técnicos</summary>
+    <div class="field">
+      <span class="field-label">Linguagem da impressora</span>
+      <div class="seg" role="radiogroup" data-setting="language">
+        <button type="button" role="radio" data-value="auto">Automático</button>
+        <button type="button" role="radio" data-value="escpr">ESC/P-R</button>
+        <button type="button" role="radio" data-value="escp2">L210 (ESC/P2)</button>
+      </div>
+    </div>
+    <pre id="techLog" class="log"></pre>
+    <button class="btn ghost wide" type="button" data-action="save-prn">Gerar arquivo de diagnóstico (.prn)</button>
+  </details>
+</dialog>
+
+<!-- Histórico -->
+<dialog id="dlgHistory" class="sheet" aria-labelledby="historyTitle">
+  <div class="sheet-head">
+    <h2 id="historyTitle">Impressões anteriores</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+  </div>
+  <ul id="historyList" class="history-list"></ul>
+</dialog>
+
+<!-- Meus PDFs -->
+<dialog id="dlgAdd" class="sheet" aria-labelledby="addTitle">
+  <div class="sheet-head">
+    <h2 id="addTitle">Meus PDFs</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+  </div>
+  <p class="lead">Escolha um ou mais PDFs de etiquetas. Eles ficam salvos neste aparelho e aparecem na lista junto com os outros.</p>
+  <label class="btn primary big wide file-btn"><svg><use href="#i-file-plus"/></svg>Escolher PDFs<input id="fileInput" type="file" accept="application/pdf,.pdf" multiple></label>
+  <ul id="myList" class="my-list"></ul>
+</dialog>
+
+<!-- Progresso da impressão -->
+<dialog id="dlgPrint" class="center-modal" aria-labelledby="printPhase">
+  <div class="ring" id="ring" style="--p:0">
+    <svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg"/></svg>
+    <span class="ring-num" id="ringNum">0</span>
+    <svg class="ring-check" aria-hidden="true"><use href="#i-check"/></svg>
+  </div>
+  <h2 id="printPhase">Preparando…</h2>
+  <p id="printDetail" class="muted"></p>
+  <div class="modal-actions" id="printActions"></div>
+</dialog>
+
+<!-- Tour -->
+<div id="tour" class="tour" hidden>
+  <div class="tour-spot" id="tourSpot"></div>
+  <div class="tour-card glass" role="dialog" aria-live="polite" aria-labelledby="tourTitle">
+    <p class="tour-step" id="tourStep"></p>
+    <h2 id="tourTitle"></h2>
+    <p id="tourText"></p>
+    <div class="tour-actions">
+      <button class="btn ghost" type="button" id="tourSkip">Pular</button>
+      <button class="btn primary" type="button" id="tourNext">Próximo</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
