@@ -1,5 +1,5 @@
 /* Service worker: guarda o app e as etiquetas para funcionar sem internet. */
-const VERSION = 'v1.0.1';
+const VERSION = 'v1.0.2';
 const SHELL = `shell-${VERSION}`;
 const DATA = 'etiquetas-pdf-v1';
 const SHELL_FILES = [
@@ -11,7 +11,8 @@ const SHELL_FILES = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_FILES)).then(() => self.skipWaiting()));
+  // cache: 'reload' evita pegar arquivos antigos do cache HTTP do navegador ao atualizar
+  e.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_FILES.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', (e) => {
   e.waitUntil((async () => {
