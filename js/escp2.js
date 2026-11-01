@@ -85,7 +85,10 @@ export class Escp2Job {
     this.nozzles = this.color ? 60 : 180;      // bicos por cor
     this.band = this.nozzles * 2;              // linhas cobertas por 2 passadas
     this.channels = this.color ? [0, 2, 1, 4] : [0]; // K, C, M, Y (códigos ESC/P2)
+    // deslocamento físico de cada grupo de bicos, em linhas de 1/360" (Gutenprint: inks/c82.xml)
+    this.offsets = this.color ? [0, 0, 120, 240] : [0];
     this.bytesPerRow = Math.ceil(this.paper.dataW * 2 / 8);
+    this.blank = new Uint8Array(this.bytesPerRow);
     this.buf = []; this.pending = 0;
   }
 
@@ -131,23 +134,19 @@ export class Escp2Job {
   }
 
   startPage() {
-    // buffer de uma faixa: para cada canal, `band` linhas de 2 bits/ponto
-    this.planes = this.channels.map(() => new Uint8Array(this.band * this.bytesPerRow));
-    this.bandStart = 0;     // linha (1/360") do topo da faixa atual
-    this.bandHasInk = false;
+    // a página inteira fica em memória (2 bits/ponto): no modo cor cada tinta sai
+    // de um grupo de bicos diferente, então uma passada mistura linhas de alturas diferentes
+    this.planes = this.channels.map(() => new Uint8Array(this.height * this.bytesPerRow));
+    this.rowInk = this.channels.map(() => new Uint8Array(this.height));
     this.head = 0; // mesmos avanços do Gutenprint (no modo cor ele declara topo -240 no ESC ( c)
-    this.dirty = false;
-    this.comp = new Uint8Array(this.nozzles * (this.bytesPerRow + this.bytesPerRow / 128 + 4) | 0);
-    this.row2 = new Uint8Array(this.bytesPerRow);
+    this.comp = new Uint8Array(this.nozzles * (this.bytesPerRow + Math.ceil(this.bytesPerRow / 128) + 4));
   }
 
   /** Recebe a linha y (0 = topo da área útil) em RGB. */
   line(y, rgb) {
-    while (y >= this.bandStart + this.band) this.emitBand();
-    const r = y - this.bandStart;
+    if (y < 0 || y >= this.height) return;
     const W = Math.min(this.paper.dataW, rgb.length / 3);
-    const off = r * this.bytesPerRow;
-    let ink = false;
+    const off = y * this.bytesPerRow;
     for (let x = 0; x < W; x++) {
       const R = rgb[x * 3], G = rgb[x * 3 + 1], B = rgb[x * 3 + 2];
       if (R === 255 && G === 255 && B === 255) continue;
@@ -155,19 +154,21 @@ export class Escp2Job {
       if (!this.color) {
         const k = 255 - ((R * 77 + G * 151 + B * 28) >> 8);
         const d = dot(k, x, y);
-        if (d) { this.planes[0][bi] |= d << sh; ink = true; }
+        if (d) { this.planes[0][bi] |= d << sh; this.rowInk[0][y] = 1; }
       } else {
         let c = 255 - R, m = 255 - G, yy = 255 - B;
-        const k = Math.min(c, m, yy);
+        // preto só onde a cor é neutra (cinza/preto); cores vivas ficam só com C, M e Y
+        const mn = Math.min(c, m, yy), mx = Math.max(c, m, yy);
+        const neutral = 1 - (mx - mn) / 255;
+        const k = Math.round(mn * neutral * neutral);
         c -= k; m -= k; yy -= k;
         const vals = [k, c, m, yy];
         for (let ch = 0; ch < 4; ch++) {
           const d = dot(vals[ch], x + ch * 3, y + ch * 5);
-          if (d) { this.planes[ch][bi] |= d << sh; ink = true; }
+          if (d) { this.planes[ch][bi] |= d << sh; this.rowInk[ch][y] = 1; }
         }
       }
     }
-    if (ink) this.bandHasInk = true;
   }
 
   moveTo(row) {
@@ -176,23 +177,29 @@ export class Escp2Job {
     this.head = row;
   }
 
-  emitPass(parity) {
-    // envia uma passada: linhas bandStart+parity, +2, +4 ... (nozzles linhas)
-    let any = false;
+  /**
+   * Uma passada com a cabeça na linha P. O bico n de cada tinta cai na linha P + 2n − deslocamento,
+   * porque na L210 os bicos magenta e amarelo ficam 120 e 240 linhas acima dos bicos preto/ciano
+   * (headOffset do Gutenprint, tintas "c82"). Sem isso, rosa e amarelo saem deslocados para cima.
+   */
+  emitPass(P) {
     const sends = [];
     for (let ch = 0; ch < this.channels.length; ch++) {
-      const plane = this.planes[ch];
-      let o = 0, has = false;
+      const h = this.offsets[ch];
+      const plane = this.planes[ch], ink = this.rowInk[ch];
+      let has = false;
+      for (let n = 0; n < this.nozzles; n++) { const r = P + 2 * n - h; if (r >= 0 && r < this.height && ink[r]) { has = true; break; } }
+      if (!has) continue;
+      let o = 0;
       for (let n = 0; n < this.nozzles; n++) {
-        const r = parity + n * 2;
-        const src = plane.subarray(r * this.bytesPerRow, (r + 1) * this.bytesPerRow);
-        if (!has) for (let i = 0; i < src.length; i++) if (src[i]) { has = true; break; }
+        const r = P + 2 * n - h;
+        const src = r >= 0 && r < this.height ? plane.subarray(r * this.bytesPerRow, (r + 1) * this.bytesPerRow) : this.blank;
         o = packBits(src, this.comp, o);
       }
-      if (has) { sends.push([this.channels[ch], this.comp.slice(0, o)]); any = true; }
+      sends.push([this.channels[ch], this.comp.slice(0, o)]);
     }
-    if (!any) return;
-    this.moveTo(this.bandStart + parity);
+    if (!sends.length) return;
+    this.moveTo(P);
     for (const [code, data] of sends) {
       this.push([0x1B, 0x69, code, 0x01, 0x02, ...le16(this.bytesPerRow), ...le16(this.nozzles)]);
       this.push(data);
@@ -200,18 +207,13 @@ export class Escp2Job {
     }
   }
 
-  emitBand() {
-    if (this.bandHasInk) {
-      this.emitPass(0);
-      this.emitPass(1);
-      for (const p of this.planes) p.fill(0);
-    }
-    this.bandHasInk = false;
-    this.bandStart += this.band;
-  }
-
   endPage() {
-    this.emitBand();
+    const maxOff = Math.max(...this.offsets);
+    for (let S = 0; S < this.height + maxOff; S += this.band) {
+      this.emitPass(S);
+      this.emitPass(S + 1);
+    }
+    this.planes = this.rowInk = null;
     this.push([0x0C]);
   }
 
